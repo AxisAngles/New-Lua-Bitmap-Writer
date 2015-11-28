@@ -23,8 +23,8 @@ To set a value of a pixel, use:
 
 To save a bitmap file, use:
 	bytedata=canvasobject:save(path,gammacorrect)
+	if no path is given, it will not save, but still return the bytedata string
 	gammacorrect defaults to the setting used when opening the file.
-
 ]]
 
 local canvas do
