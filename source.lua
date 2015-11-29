@@ -23,7 +23,6 @@ To set a value of a pixel, use:
 
 To save a bitmap file, use:
 	bytedata=canvasobject:save(path,gammacorrect)
-	if no path is given, it will not save, but still return the bytedata string
 	gammacorrect defaults to the setting used when opening the file.
 ]]
 
@@ -50,7 +49,7 @@ local canvas do
 	local function save(self,path,gamma)
 		local h=self.h
 		local w=self.w
-		local gamma=gamma==nil and self.gamma or false
+		local gamma=gamma==nil and self.gamma or gamma
 		local rlist=self.r
 		local glist=self.g
 		local blist=self.b
@@ -85,9 +84,9 @@ local canvas do
 				end
 				n=n+1
 				--char automatically rounds to nearest integer
-				bmp[n]=char(b<0 and 0 or 255<b and 255 or b,
-					g<0 and 0 or 255<g and 255 or g,
-					r<0 and 0 or 255<r and 255 or r)
+				bmp[n]=char(b<0 and 0 or 255<b and 255 or b~=b and 0 or b,
+					g<0 and 0 or 255<g and 255 or g~=g and 0 or g,
+					r<0 and 0 or 255<r and 255 or r~=r and 0 or r)
 			end
 			n=n+1
 			bmp[n]=lineend
@@ -115,14 +114,19 @@ local canvas do
 			--These are hard coded in here to speed up the Lua version
 			--Costs an extra 168 kb lol
 			setpixel=function(self,x,y,r,g,b)
-				local p=(y-1)*w+x
-				rlist[p]=r
-				glist[p]=g
-				blist[p]=b
+				if 1<=x and x<=w and 1<=y and y<=h then
+					local p=(y-1)*w+x
+					rlist[p]=r
+					glist[p]=g
+					blist[p]=b
+				end
 			end;
 			getpixel=function(self,x,y)
-				local p=(y-1)*w+x
-				return rlist[p],glist[p],blist[p]
+				if 1<=x and x<=w and 1<=y and y<=h then
+					local p=(y-1)*w+x
+					return rlist[p],glist[p],blist[p]
+				end
+				return 0,0,0
 			end;
 		}
 		return newcanvas,rlist,glist,blist
